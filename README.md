@@ -35,3 +35,41 @@ skills/
     SKILL.md
     references/
       whatsapp-platform.md
+```
+
+Each skill is self-contained. The required file is `SKILL.md`; files under `references/` provide deeper context that an AI agent can load only when needed.
+
+## Using These Skills
+
+Copy or install the desired skill folder into your AI agent or Codex skills directory.
+
+For example, to use only the Peach MCP skill:
+
+```sh
+cp -R skills/peach-mcp ~/.codex/skills/
+```
+
+To use all skills:
+
+```sh
+cp -R skills/peach-* ~/.codex/skills/
+```
+
+Exact installation paths may vary depending on your agent runtime.
+
+## Skill Design
+
+These skills follow a concise, progressive-disclosure structure:
+
+1. `SKILL.md` contains trigger guidance, working style, and routing.
+2. `references/` contains deeper product, API, MCP, or WhatsApp-specific details.
+3. Skills are split by user intent so agents load only the context needed for the task.
+
+## Official References
+
+- Peach AI: https://trypeach.ai
+- Peach Docs: https://docs.trypeach.ai
+- Peach Developer Docs: https://developers.trypeach.ai
+- Peach MCP: https://trypeach.ai/whatsapp-business-api-mcp
+- Meta WhatsApp Business Platform Docs: https://developers.facebook.com/docs/whatsapp
+
