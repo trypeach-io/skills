@@ -14,6 +14,7 @@ This repository contains separate skills for different Peach use cases:
 | `peach-api` | External developer guidance for integrating with Peach HTTP APIs from backend services, webhook handlers, workflow builders, and server-side automation. |
 | `peach-mcp` | Guidance for MCP clients and external LLMs operating Peach through Peach's native MCP tools. |
 | `peach-whatsapp-api` | WhatsApp Business Platform constraints as they apply to Peach, including templates, categories, WABA/phone setup, messaging windows, delivery status, and broadcasts. |
+| `peach-shopify` | Use-case playbook for setting up WhatsApp engagement for a Shopify store: transactional messages, abandoned-cart recovery with an AI agent, and a support chatbot — including the Shopify webhook data-mapping details. |
 
 ## Repository Structure
 
@@ -35,6 +36,10 @@ skills/
     SKILL.md
     references/
       whatsapp-platform.md
+  peach-shopify/
+    SKILL.md
+    references/
+      shopify-playbook.md
 ```
 
 Each skill is self-contained. The required file is `SKILL.md`; files under `references/` provide deeper context that an AI agent can load only when needed.
@@ -72,4 +77,3 @@ These skills follow a concise, progressive-disclosure structure:
 - Peach Developer Docs: https://developers.trypeach.ai
 - Peach MCP: https://trypeach.ai/whatsapp-business-api-mcp
 - Meta WhatsApp Business Platform Docs: https://developers.facebook.com/docs/whatsapp
-

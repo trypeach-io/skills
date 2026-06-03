@@ -58,6 +58,7 @@ Automations:
 
 - Best for routing, follow-ups, menus, triggers, and repetitive workflow steps.
 - Use when a customer action or external event should start a message, app, assignment, or workflow.
+- Triggers connect an external event (e.g. a Shopify or Stripe webhook) to an automation: a named condition decides when it fires (including field filters like "order paid but not POS"), and JSONPath data mappings pull payload fields into the flow. Automations and triggers can be built in the web app or programmatically via the Peach API and MCP.
 
 AI agents:
 
@@ -86,7 +87,7 @@ Developer API:
 MCP:
 
 - Best for external LLM clients that need controlled access to Peach tools.
-- Use when an assistant should create templates, launch broadcasts, inspect conversations, manage micro-agents, route owners, or analyze chat history through explicit tool calls.
+- Use when an assistant should create templates, launch broadcasts, inspect conversations, manage micro-agents, route owners, build automations, wire event triggers, or analyze chat history through explicit tool calls.
 
 Security, governance, and scale:
 
