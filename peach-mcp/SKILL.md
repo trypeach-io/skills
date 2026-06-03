@@ -6,12 +6,15 @@ description: >
   includes sending WhatsApp template messages, launching broadcasts, managing
   contacts/templates/media, connecting contacts to micro-agents, reading and
   analyzing messages, updating conversations, creating setup links, auditing or
-  improving agent prompts, and using Peach effectively via tool calls. Trigger
-  on phrases like "Peach MCP", "MCP client", "use Peach tools",
-  "peach_send_template_message", "Claude/ChatGPT MCP with Peach", or "let an
+  improving agent prompts, building automations (Streams), and wiring triggers
+  that start an automation from an external event (e.g. a Shopify or Stripe
+  webhook) with conditions and JSONPath data mappings, and using Peach
+  effectively via tool calls. Trigger on phrases like "Peach MCP", "MCP client",
+  "use Peach tools", "peach_send_template_message", "peach_create_trigger",
+  "Shopify WhatsApp automation", "Claude/ChatGPT MCP with Peach", or "let an
   AI agent operate Peach".
 metadata:
-  version: 0.1.0
+  version: 0.2.0
 ---
 
 # Peach MCP Skill

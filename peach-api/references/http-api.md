@@ -83,6 +83,21 @@ Setup links:
 - `DELETE /api/v1/setup_guest_links/:id`
 - `POST /api/v1/setup_guest_links/:id/regenerate`
 
+Automations (Streams) — step-graph conversation flows:
+
+- `GET /api/v1/streams` (optionally filter by `execution_mode`)
+- `POST /api/v1/streams` — create (identify the sending number with `business_phone_number`, the wa_id; supply a step-graph `definition`)
+- `GET /api/v1/streams/:id`
+- `PATCH /api/v1/streams/:id` — update name/description/status/definition (set `status: "published"` to publish)
+- `POST /api/v1/streams/:stream_id/events` — fire an event into an automation for a contact
+
+Triggers and conditions — start an automation from an external event:
+
+- `GET /api/v1/expressions` — the condition library (optionally filter by `source`, e.g. `peach_shopify`); each returns a friendly `description`, `topic`, and the `variables` it needs
+- `GET /api/v1/streams/:stream_id/triggers`
+- `POST /api/v1/streams/:stream_id/triggers` — create a trigger (by condition name + data mappings)
+- `PATCH /api/v1/triggers/:id` — update variables / data mappings / activation
+
 ## Send A Template Message
 
 Use an approved WhatsApp template. The template can include named liquid values supplied at send time.
@@ -145,6 +160,40 @@ Required concepts:
 - Micro-agent: usually an `aiflw_...` ID.
 
 Do not use this for generic chatbot strategy; use the Peach product skill for micro-agent setup, routing, and prompt guidance.
+
+## Trigger An Automation From An Event
+
+Run an automation when an external event arrives (e.g. a Shopify order is paid). Two parts: a **condition** (the "when") and **data mappings** (pull fields out of the event payload with JSONPath into the flow).
+
+1. Connect the source integration (e.g. Shopify) in the Peach web app first. The event source is derived from the condition's integration; the API never takes an event-source ID. If the integration is not connected, trigger creation returns `409` with `code: "event_source_not_connected"` — an onboarding step, not an API fix.
+2. List the condition library to find the condition by name and its variables:
+
+```text
+GET /api/v1/expressions?source=peach_shopify
+```
+
+3. Create the trigger by condition **name** (not an internal ID). Use `source` only to disambiguate when the same name exists for multiple integrations:
+
+```json
+{
+  "condition": "Order Paid where a field does NOT equal a value",
+  "source": "peach_shopify",
+  "variables": { "key_path": "$.source_name", "value": "pos" },
+  "data_mappings": [
+    { "mapping_for": "recipient", "value": { "phone_number": "$.customer.phone", "name": "$.customer.first_name" } },
+    { "mapping_for": "variable",  "value": { "order_id": "$.id", "total": "$.total_price" } }
+  ],
+  "activate": true
+}
+```
+
+`POST /api/v1/streams/:stream_id/triggers`. `recipient` mappings decide who is messaged; `variable` mappings become `{{key}}` values inside the flow's steps. Triggers are created as drafts unless `activate: true`; activation registers the integration webhook.
+
+Notes:
+
+- Identify conditions by `condition` (the expression's `description`). `expression_id` (`exp_...`) is accepted as an advanced fallback.
+- Required `variables` come from the chosen expression; missing ones return `422` with `code: "missing_variables"`.
+- An unknown name returns `404` `condition_not_found`; a shared name returns `409` `condition_ambiguous` with candidate sources — pass `source`.
 
 ## Webhooks
 

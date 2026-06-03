@@ -82,6 +82,28 @@ AI agents:
 
 Use AI-agent tools for Peach micro-agents: lead qualification, appointment booking, re-engagement, order/transaction management, sales, support, feedback, gather-info, engagement, and custom agents.
 
+Automations (Streams) — step-graph conversation flows:
+
+- `peach_list_automations`
+- `peach_get_automation`
+- `peach_create_automation`
+- `peach_update_automation`
+- `peach_trigger_automation`
+
+Triggers and conditions — start an automation from an external event (e.g. a Shopify or Stripe webhook):
+
+- `peach_list_expressions`
+- `peach_list_triggers`
+- `peach_create_trigger`
+- `peach_update_trigger`
+
+A **trigger** wires an automation to an event. It has two parts:
+
+- A **condition** (the "when") chosen from the expression library by its friendly name, e.g. `"Order Paid"`. Some conditions take variables (e.g. a field/value filter for "order paid but source is not POS").
+- **Data mappings** that pull fields out of the event payload using JSONPath: `recipient` mappings decide who is messaged; `variable` mappings become `{{key}}` values inside the flow.
+
+The event source (the connected integration, e.g. Shopify) is derived automatically from the chosen condition — callers never pass an event-source ID. The integration must already be connected in the Peach web app; if it is not, `peach_create_trigger` returns an "event source not connected" error that is an onboarding step, not an API action.
+
 ## Common Workflows
 
 Send a template message:
@@ -137,6 +159,14 @@ Operate the shared inbox:
 2. Use `peach_list_messages` and `peach_list_activities` for context.
 3. Route or update conversations only after checking owner, status, and user intent.
 
+Build an event-triggered automation (e.g. WhatsApp message when a Shopify order is paid):
+
+1. Create or identify the automation with `peach_create_automation` (definition-driven step graph) or `peach_list_automations`/`peach_get_automation`.
+2. Use `peach_list_expressions` (optionally filter by `source`, e.g. `peach_shopify`) to find the condition by name and see which variables it needs.
+3. Call `peach_create_trigger` with the automation `stream_id`, the `condition` name, any `variables`, and `data_mappings` (JSONPath into the event payload). The trigger is created as a draft.
+4. Review with `peach_list_triggers`, then set it live by calling `peach_create_trigger` with `activate: true` (or `peach_update_trigger` with `activate: true`). Activation registers the integration webhook.
+5. Trigger a test with `peach_trigger_automation`, or place a real test order, and verify via the automation's responses/sessions.
+
 ## Safety Rules
 
 - Treat `peach_send_template_message`, `peach_launch_broadcast`, `peach_connect_to_ai_agent`, and `peach_send_app_message` as customer-visible actions.
@@ -183,4 +213,45 @@ Broadcasts usually use IDs like:
 
 ```text
 cmp_...
+```
+
+Automations usually use IDs like:
+
+```text
+strm_...
+```
+
+Creating an automation identifies the sending number by `business_phone_number` (WhatsApp wa_id format, e.g. `919876543210`), the same as template/broadcast sends — not an internal numeric ID:
+
+```json
+{
+  "name": "Order paid thank-you",
+  "business_phone_number": "919876543210",
+  "definition": {
+    "start_step": "thanks",
+    "steps": {
+      "thanks": {
+        "type": "send_message",
+        "payload": { "message": { "text": "Thanks! Order {{order_id}} is confirmed." } },
+        "next_step": null
+      }
+    }
+  }
+}
+```
+
+Creating a trigger references the condition by its friendly name (not an internal ID). Use `source` only to disambiguate when the same name exists for more than one integration:
+
+```json
+{
+  "stream_id": "strm_...",
+  "condition": "Order Paid where a field does NOT equal a value",
+  "source": "peach_shopify",
+  "variables": { "key_path": "$.source_name", "value": "pos" },
+  "data_mappings": [
+    { "mapping_for": "recipient", "value": { "phone_number": "$.customer.phone", "name": "$.customer.first_name" } },
+    { "mapping_for": "variable",  "value": { "order_id": "$.id", "total": "$.total_price" } }
+  ],
+  "activate": true
+}
 ```
